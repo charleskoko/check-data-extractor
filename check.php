@@ -1,12 +1,110 @@
 #!/usr/bin/env php
-<?php
-
-echo "looking for this class" . __DIR__ . "/src.php";
-
-require_once __DIR__ . "/src/DatabaseConnection.php";
-require_once __DIR__ . "/src/TrackingLogs.php";
+<?php declare(strict_types=1);
 
 $config_file = getenv("HOME") . "/.db_config.php";
+
+class DatabaseConnection
+{
+    private static $instance = null;
+    private $conn;
+    private string $db_host;
+    private string $db_port;
+    private string $db_user;
+    private string $db_pass;
+    private string $db_name;
+
+    public function __construct(string $db_host, string $db_port, string $db_user, string $db_pass, string $db_name)
+    {
+        $this->db_host = $db_host;
+        $this->db_user = $db_user;
+        $this->db_pass = $db_pass;
+        $this->db_name = $db_name;
+        $this->db_port = $db_port;
+
+        try {
+            $this->conn = new PDO("mysql:host={$this->db_host};port={$this->db_port};dbname={$this->db_name}", $this->db_user, $this->db_pass);
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch(PDOException $e) {
+            throw new \RuntimeException("Failed to connect to the database: " . $e->getMessage());
+        }
+    }
+
+    public static function getInstance(string $db_host, string $db_port, string $db_user, string $db_pass, string $db_name): DatabaseConnection
+    {
+        if (!self::$instance) {
+            self::$instance = new DatabaseConnection($db_host, $db_port, $db_user, $db_pass, $db_name);
+        }
+        return self::$instance;
+    }
+
+    public function getConnection(): PDO
+    {
+        return $this->conn;
+    }
+}
+
+class TrackingLogs
+{
+    private DatabaseConnection $databaseConnection;
+
+    private const TABLE = [
+        'yps' => 'tracking_ypsilon',
+        'trf' => 'tracking_travelfusion',
+        'ama' => 'tracking_amadeus',
+        'sab' => 'tracking_sabre',
+    ];
+
+    public function __construct(DatabaseConnection $databaseConnection)
+    {
+        $this->databaseConnection = $databaseConnection;
+    }
+
+    /**
+     * @param array $arg
+     * $arg[0] => transactionId
+     * $arg[1] => GDS
+     * @return void
+     */
+    public function doRequestForTrackingData(array $arg): void
+    {
+        $transactionId = $arg['transactionId'];
+        $table = self::TABLE[strtolower($arg['gds'])];
+        if (null !== $transactionId) {
+            $sql = "SELECT timestamp, type, UNCOMPRESS(request_raw), UNCOMPRESS(response_raw) FROM $table WHERE tracking_api_transaction = :tracking_api_transaction";
+        } else {
+            throw new \RuntimeException('no arguments passed');
+        }
+
+        $connection = $this->databaseConnection->getConnection();
+        $request = $connection->prepare($sql);
+        $request->bindParam(':tracking_api_transaction', $transactionId, PDO::PARAM_STR);
+        $request->execute();
+        $this->saveInfoInFolder($transactionId, $request);
+    }
+
+    /**
+     * @param $transactionId
+     * @param $request
+     * @return void
+     */
+    public function saveInfoInFolder($transactionId, $request): void
+    {
+        $folder = getenv("HOME") . "/Downloads/transaction_{$transactionId}";
+        if (!file_exists($folder) && !mkdir($folder) && !is_dir($folder)) {
+            throw new \RuntimeException(sprintf('Directory "%s" was not created', $folder));
+        }
+        while ($row = $request->fetch(PDO::FETCH_ASSOC)) {
+            $timestamp = $row['timestamp'];
+            $type = $row['type'];
+            $request_raw = $row['UNCOMPRESS(request_raw)'];
+            $response_raw = $row['UNCOMPRESS(response_raw)'];
+            $fileName = "$folder/{$transactionId}_{$timestamp}_{$type}_RQ.xml";
+            file_put_contents($fileName, $request_raw);
+            $fileName = "$folder/{$transactionId}_{$timestamp}_{$type}_RS.xml";
+            file_put_contents($fileName, $response_raw);
+        }
+    }
+}
 
 function configure_db($config_file)
 {

@@ -9,7 +9,5 @@ class Check < Formula
 
   def install
       bin.install "check.php" => "check"
-      # Install the src folder containing the necessary classes
-      (lib/"src").install Dir["src/*"]
     end
 end
