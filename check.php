@@ -1,8 +1,8 @@
 #!/usr/bin/env php
 <?php
 
-require_once "./src/DatabaseConnection.php";
-require_once "./src/TrackingLogs.php";
+require_once __DIR__ . "/src/DatabaseConnection.php";
+require_once __DIR__ . "/src/TrackingLogs.php";
 
 $config_file = getenv("HOME") . "/.db_config.php";
 
