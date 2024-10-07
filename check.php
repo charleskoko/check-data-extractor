@@ -24,7 +24,7 @@ class DatabaseConnection
         try {
             $this->conn = new PDO("mysql:host={$this->db_host};port={$this->db_port};dbname={$this->db_name}", $this->db_user, $this->db_pass);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch(PDOException $e) {
+        } catch (PDOException $e) {
             throw new \RuntimeException("Failed to connect to the database: " . $e->getMessage());
         }
     }
@@ -133,6 +133,64 @@ if (!file_exists($config_file)) {
     configure_db($config_file);
 }
 
+function load_existing_config($config_file): array
+{
+    if (!file_exists($config_file)) {
+        throw new \RuntimeException("Configuration file not found.");
+    }
+
+    include $config_file;
+
+    if (!isset($db_host, $db_port, $db_name, $db_username, $db_pass)) {
+        throw new \RuntimeException("Invalid configuration file format.");
+    }
+
+    return [
+        'db_host' => $db_host,
+        'db_port' => $db_port,
+        'db_name' => $db_name,
+        'db_username' => $db_username,
+        'db_pass' => $db_pass,
+    ];
+}
+
+function mask_password(string $password): string
+{
+    // Si le mot de passe est inférieur à 2 caractères, renvoie-le tel quel.
+    if (strlen($password) <= 2) {
+        return $password;
+    }
+
+    // Remplace tous les caractères sauf les deux derniers par des astérisques (*)
+    return str_repeat('*', strlen($password) - 2) . substr($password, -2);
+}
+
+function reconfigure_db($config_file): void
+{
+    $config = load_existing_config($config_file);
+
+    echo "Modify the database credentials (press Enter to keep the current value):\n";
+
+    $masked_password = mask_password($config['db_pass']);
+    $db_host = readline("Database host [{$config['db_host']}] : ") ?: $config['db_host'];
+    $db_port = readline("Database port [{$config['db_port']}] : ") ?: $config['db_port'];
+    $db_name = readline("Database name [{$config['db_name']}] : ") ?: $config['db_name'];
+    $db_username = readline("Username [{$config['db_username']}] : ") ?: $config['db_username'];
+    $db_pass = readline("Password [{$masked_password}] : ") ?: $config['db_pass'];
+
+    // Sauvegarder les modifications dans le fichier
+    $config_content = "<?php\n";
+    $config_content .= "\$db_host = '$db_host';\n";
+    $config_content .= "\$db_port = '$db_port';\n";
+    $config_content .= "\$db_name = '$db_name';\n";
+    $config_content .= "\$db_username = '$db_username';\n";
+    $config_content .= "\$db_pass = '$db_pass';\n";
+
+    file_put_contents($config_file, $config_content);
+    echo "Configuration updated and saved in $config_file\n";
+}
+
+
 require $config_file;
 
 function check_transaction(string $transaction_id, string $gds)
@@ -146,18 +204,26 @@ function check_transaction(string $transaction_id, string $gds)
 
         $trackingsLogs->doRequestForTrackingData(['transactionId' => $transaction_id, 'gds' => $gds]);
 
-    } catch(Exception $exception) {
-        echo (string) ($exception->getMessage());
+    } catch (Exception $exception) {
+
+        echo (string)($exception->getMessage());
+
     }
 
 }
 
+if ($argc === 3 && $argv[1] === 'reconfigure' && $argv[2] === 'config') {
+    reconfigure_db($config_file);
+    exit(0);
+}
+
 if ($argc === 3) {
-    $transaction_id = (string) $argv[1];
-    $gds = (string) $argv[2];
+    $transaction_id = (string)$argv[1];
+    $gds = (string)$argv[2];
     check_transaction($transaction_id, $gds);
     echo "check in your downloads folder";
+    exit(0);
 } else {
-    echo "Usage : check.php check exact <transactionID>\n";
+    echo "Usage : check-data-extractor <transactionID> <GDS>\n";
 }
 ?>
