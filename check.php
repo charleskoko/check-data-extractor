@@ -1,6 +1,8 @@
 #!/usr/bin/env php
 <?php
 
+echo "looking for this class" . __DIR__ . "/src/DatabaseConnection.php";
+
 require_once __DIR__ . "/src/DatabaseConnection.php";
 require_once __DIR__ . "/src/TrackingLogs.php";
 
