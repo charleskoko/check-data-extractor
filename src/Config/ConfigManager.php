@@ -2,18 +2,35 @@
 
 namespace App\Config;
 
+use App\Display\TerminalDisplay;
+
 class ConfigManager
 {
     private array $config;
     private string $config_file;
 
-    public function __construct(string $config_file)
+    /**
+     * @throws \Exception
+     */
+    public function __construct()
     {
+        $config_file = getenv("HOME") . "/.db_config.php";
         $this->config_file = $config_file;
         if (file_exists($config_file)) {
-            $this->config = include $config_file;
+            $config = include $config_file;
+            if (!is_array($config)) {
+                throw new \Exception("Le fichier de configuration est invalide : il ne retourne pas un tableau.");
+            }
+            $this->config = $config;
         } else {
-            throw new \RuntimeException("Configuration file does not exist.");
+            $this->createConfigFile();
+        }
+    }
+
+    public function set(): void
+    {
+        if (!file_exists($this->config_file)) {
+            $this->createConfigFile();
         }
     }
 
@@ -35,9 +52,20 @@ class ConfigManager
         $this->save();
     }
 
+    public function createConfigFile(): void
+    {
+
+        $this->config['db_host'] = 'localhost';
+        $this->config['db_port'] = '3306';
+        $this->config['db_name'] = 'root';
+        $this->config['db_username'] = '';
+        $this->config['db_pass'] = 'database_name';
+        $this->save();
+    }
+
     private function save(): void
     {
         file_put_contents($this->config_file, "<?php\nreturn " . var_export($this->config, true) . ";\n");
-        echo "Configuration updated and saved in {$this->config_file}\n";
+        TerminalDisplay::showSuces("Configuration updated and saved in {$this->config_file}\n");
     }
 }

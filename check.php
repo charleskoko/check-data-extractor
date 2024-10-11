@@ -8,10 +8,9 @@ use App\Database\DatabaseConnection;
 use App\Display\TerminalDisplay;
 use App\Logger\TrackingLogs;
 
-$config_file = getenv("HOME") . "/.db_config.php";
+$configManager = new ConfigManager();
 
 if ($argc === 3 && $argv[1] === 'reconfigure' && $argv[2] === 'config') {
-    $configManager = new ConfigManager($config_file);
     $configManager->reconfigure();
     exit(0);
 }
@@ -21,7 +20,7 @@ if ($argc !== 3) {
     exit(1);
 }
 
-$configManager = new ConfigManager($config_file);
+$configManager->set();
 
 $databaseConnection = new DatabaseConnection(
     $configManager->get('db_host'),
