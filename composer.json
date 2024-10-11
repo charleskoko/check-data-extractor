@@ -1,0 +1,21 @@
+{
+    "name": "charleskoko/check-data-extractor",
+    "description": "A command-line tool that retrieves and processes transaction information from a database. The tool extracts specific transaction details and exports them in a structured format for further analysis.",
+    "type": "project",
+    "require": {
+        "php": "^8.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Charles Koko",
+            "email": "jephtekoko@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable"
+}
