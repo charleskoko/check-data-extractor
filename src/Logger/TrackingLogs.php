@@ -3,6 +3,7 @@
 namespace App\Logger;
 
 use App\Database\DatabaseConnection;
+use App\Display\TerminalDisplay;
 use PDO;
 use PDOStatement;
 
@@ -26,7 +27,8 @@ class TrackingLogs
         $table = self::TABLES[strtolower($gds)] ?? null;
 
         if ($table === null) {
-            throw new \RuntimeException('Invalid GDS or transaction ID.');
+            TerminalDisplay::showError("Invalid GDS or transaction ID.");
+            exit(1);
         }
 
         $sql = "SELECT timestamp, type, UNCOMPRESS(request_raw), UNCOMPRESS(response_raw) 
@@ -45,7 +47,8 @@ class TrackingLogs
         $folder = getenv("HOME") . "/Downloads/transaction_{$transactionId}";
 
         if (!is_dir($folder) && !mkdir($folder, 0777, true)) {
-            throw new \RuntimeException("Failed to create directory: $folder");
+            TerminalDisplay::showError("Failed to create directory: $folder");
+            exit(1);
         }
 
         while ($row = $request->fetch(PDO::FETCH_ASSOC)) {

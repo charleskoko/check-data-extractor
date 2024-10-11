@@ -43,7 +43,7 @@ function autoloadManager(): void
     } elseif (file_exists(__DIR__ . '/../lib/vendor/autoload.php')) {
         require __DIR__ . '/../lib/vendor/autoload.php';
     } else {
-        echo "Error: autoload.php not found. Please check your installation.\n";
+        TerminalDisplay::showError("Error: autoload.php not found. Please check your installation.\n");
         exit(1);
     }
 }

@@ -43,8 +43,14 @@ class TerminalDisplay
         echo self::colorize($message, 'red') . "\n";
     }
 
+    public static function showInfo(string $message): void
+    {
+        echo self::colorize($message, 'blue') . "\n";
+    }
+
     public static function showSuces(string $message): void
     {
         echo self::colorize($message, 'green') . "\n";
     }
+
 }

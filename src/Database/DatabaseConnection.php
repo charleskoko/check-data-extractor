@@ -2,6 +2,7 @@
 
 namespace App\Database;
 
+use App\Display\TerminalDisplay;
 use PDO;
 use PDOException;
 
@@ -37,7 +38,8 @@ class DatabaseConnection
             $this->conn = new PDO($dsn, $this->db_user, $this->db_pass);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {
-            throw new \RuntimeException("Failed to connect to the database: " . $e->getMessage());
+            TerminalDisplay::showError("Failed to connect to the database: " . $e->getMessage());
+            exit(1);
         }
     }
 

@@ -9,9 +9,7 @@ class ConfigManager
     private array $config;
     private string $config_file;
 
-    /**
-     * @throws \Exception
-     */
+
     public function __construct()
     {
         $config_file = getenv("HOME") . "/.db_config.php";
@@ -19,7 +17,10 @@ class ConfigManager
         if (file_exists($config_file)) {
             $config = include $config_file;
             if (!is_array($config)) {
-                throw new \Exception("Le fichier de configuration est invalide : il ne retourne pas un tableau.");
+                TerminalDisplay::showInfo('The configuration file is invalid: it does not return an array.');
+                exec("rm -f " . escapeshellarg($config), $output, $return_var);
+                TerminalDisplay::showSuces('The file was successfully deleted.');
+                exit(1);
             }
             $this->config = $config;
         } else {
@@ -41,7 +42,7 @@ class ConfigManager
 
     public function reconfigure(): void
     {
-        echo "Reconfiguring database credentials (leave empty to keep current value):\n";
+        TerminalDisplay::showInfo("Reconfiguring database credentials (leave empty to keep current value):\n");
 
         $this->config['db_host'] = readline("Database host [{$this->get('db_host')}] : ") ?: $this->get('db_host');
         $this->config['db_port'] = readline("Database port [{$this->get('db_port')}] : ") ?: $this->get('db_port');
