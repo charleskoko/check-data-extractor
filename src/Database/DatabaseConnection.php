@@ -9,14 +9,14 @@ class DatabaseConnection
 {
     private PDO $conn;
     private string $db_host;
-    private int $db_port;
+    private string $db_port;
     private string $db_user;
     private string $db_pass;
     private string $db_name;
 
     public function __construct(
         string $db_host,
-        int $db_port,
+        string $db_port,
         string $db_user,
         string $db_pass,
         string $db_name
