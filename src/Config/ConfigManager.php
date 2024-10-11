@@ -17,9 +17,12 @@ class ConfigManager
         if (file_exists($config_file)) {
             $config = include $config_file;
             if (!is_array($config)) {
-                TerminalDisplay::showInfo('The configuration file is invalid: it does not return an array.');
-                exec("rm -f " . escapeshellarg($config), $output, $return_var);
-                TerminalDisplay::showSuces('The file was successfully deleted.');
+                TerminalDisplay::showInfo("The configuration file is invalid: it does not return an array.");
+                $isDeleted = exec("rm -f " . escapeshellarg($config), $output, $return_var);
+                if (!$isDeleted) {
+                    TerminalDisplay::showWarning("Please manually delete the file in {$this->config_file} before continuing.");
+                }
+                TerminalDisplay::showSuces("The file was successfully deleted.");
                 exit(1);
             }
             $this->config = $config;
@@ -61,12 +64,16 @@ class ConfigManager
         $this->config['db_name'] = 'root';
         $this->config['db_username'] = '';
         $this->config['db_pass'] = 'database_name';
-        $this->save();
+        $this->save(true);
     }
 
-    private function save(): void
+    private function save(bool $isFirstTime = false): void
     {
+        if ($isFirstTime) {
+            file_put_contents($this->config_file, "<?php\nreturn " . var_export($this->config, true) . ";\n");
+            TerminalDisplay::showSuces("Configuration created and saved in {$this->config_file}");
+        }
         file_put_contents($this->config_file, "<?php\nreturn " . var_export($this->config, true) . ";\n");
-        TerminalDisplay::showSuces("Configuration updated and saved in {$this->config_file}\n");
+        TerminalDisplay::showSuces("Configuration updated and saved in {$this->config_file}");
     }
 }

@@ -4,7 +4,7 @@ namespace App\Display;
 
 class TerminalDisplay
 {
-    // Définit les couleurs disponibles pour les textes dans le terminal
+
     private const COLORS = [
         'red' => "\033[31m",
         'green' => "\033[32m",
@@ -13,13 +13,11 @@ class TerminalDisplay
         'reset' => "\033[0m"
     ];
 
-    // Méthode pour colorer du texte
     public static function colorize(string $text, string $color): string
     {
         return self::COLORS[$color] . $text . self::COLORS['reset'];
     }
 
-    // Méthode pour afficher les instructions d'utilisation
     public static function showUsageInstructions(): void
     {
         echo self::colorize("\nUsage Instructions:\n", 'yellow');
@@ -37,7 +35,6 @@ class TerminalDisplay
         echo "     Run this command to reconfigure the database connection settings.\n\n";
     }
 
-    // Méthode pour afficher les messages d'erreur
     public static function showError(string $message): void
     {
         echo self::colorize($message, 'red') . "\n";
@@ -51,6 +48,11 @@ class TerminalDisplay
     public static function showSuces(string $message): void
     {
         echo self::colorize($message, 'green') . "\n";
+    }
+
+    public static function showWarning(string $message): void
+    {
+        echo self::colorize($message, 'yellow') . "\n";
     }
 
 }
