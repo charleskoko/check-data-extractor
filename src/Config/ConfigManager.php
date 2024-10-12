@@ -67,13 +67,58 @@ class ConfigManager
         $this->save(true);
     }
 
+    public function showQueries(): void
+    {
+        if (!isset($this->config['queries']) || empty($this->config['queries'])) {
+            TerminalDisplay::showInfo("No SQL queries found in the configuration.");
+            return;
+        }
+
+        TerminalDisplay::showInfo("Stored SQL queries:\n");
+
+        foreach ($this->config['queries'] as $queryName => $sqlQuery) {
+            TerminalDisplay::showWarning("- " . $queryName . ": ");
+            echo "  " . $sqlQuery . "\n\n";
+        }
+    }
+
+    public function addQuery(): void
+    {
+        TerminalDisplay::showInfo("Add a new SQL query to the configuration.\n");
+
+        $queryName = readline("Enter a name for the query (e.g., tracking_query): ");
+        if (empty($queryName)) {
+            TerminalDisplay::showError("Query name cannot be empty.");
+            return;
+        }
+
+        $sqlQuery = readline("Enter the SQL query: ");
+        if (empty($sqlQuery)) {
+            TerminalDisplay::showError("SQL query cannot be empty.");
+            return;
+        }
+
+        $this->config['queries'][$queryName] = $sqlQuery;
+
+        $this->save();
+
+        TerminalDisplay::showSuces("Query '$queryName' added to the configuration successfully.");
+    }
+
     private function save(bool $isFirstTime = false): void
     {
         if ($isFirstTime) {
             file_put_contents($this->config_file, "<?php\nreturn " . var_export($this->config, true) . ";\n");
             TerminalDisplay::showSuces("Configuration created and saved in {$this->config_file}");
         }
-        file_put_contents($this->config_file, "<?php\nreturn " . var_export($this->config, true) . ";\n");
-        TerminalDisplay::showSuces("Configuration updated and saved in {$this->config_file}");
+        if (!$isFirstTime) {
+            file_put_contents($this->config_file, "<?php\nreturn " . var_export($this->config, true) . ";\n");
+            TerminalDisplay::showSuces("Configuration updated and saved in {$this->config_file}");
+        }
+    }
+
+    public function getConfig(): array
+    {
+        return $this->config;
     }
 }

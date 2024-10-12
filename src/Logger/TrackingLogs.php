@@ -16,10 +16,12 @@ class TrackingLogs
         'sab' => 'tracking_sabre',
     ];
     private DatabaseConnection $databaseConnection;
+    private array $config;
 
-    public function __construct(DatabaseConnection $databaseConnection)
+    public function __construct(DatabaseConnection $databaseConnection, array $config)
     {
         $this->databaseConnection = $databaseConnection;
+        $this->config = $config;
     }
 
     public function doRequestForTrackingData(string $transactionId, string $gds): void
@@ -31,8 +33,16 @@ class TrackingLogs
             exit(1);
         }
 
-        $sql = "SELECT timestamp, type, UNCOMPRESS(request_raw), UNCOMPRESS(response_raw) 
-                FROM $table WHERE tracking_api_transaction = :tracking_api_transaction";
+        $sqlTemplate = $this->config['queries']['tracking_query'] ?? null;
+
+        if ($sqlTemplate === null) {
+            TerminalDisplay::showError("SQL query not found in config.");
+            exit(1);
+        }
+
+
+        $sql = str_replace('{table}', $table, $sqlTemplate);
+
 
         $connection = $this->databaseConnection->getConnection();
         $request = $connection->prepare($sql);

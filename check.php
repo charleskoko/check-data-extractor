@@ -10,6 +10,16 @@ use App\Logger\TrackingLogs;
 
 $configManager = new ConfigManager();
 
+if ($argc === 2 && $argv[1] === 'add-query') {
+    $configManager->addQuery();
+    exit(0);
+}
+
+if ($argc === 2 && $argv[1] === 'show-queries') {
+    $configManager->showQueries();
+    exit(0);
+}
+
 if ($argc === 3 && $argv[1] === 'reconfigure' && $argv[2] === 'config') {
     $configManager->reconfigure();
     exit(0);
@@ -17,7 +27,7 @@ if ($argc === 3 && $argv[1] === 'reconfigure' && $argv[2] === 'config') {
 
 if ($argc !== 3) {
     TerminalDisplay::showUsageInstructions();
-    exit(1);
+    exit(0);
 }
 
 $configManager->set();
@@ -30,7 +40,7 @@ $databaseConnection = new DatabaseConnection(
     $configManager->get('db_name')
 );
 
-$trackingLogs = new TrackingLogs($databaseConnection);
+$trackingLogs = new TrackingLogs($databaseConnection, $configManager->getConfig());
 
 $trackingLogs->doRequestForTrackingData($argv[1], $argv[2]);
 

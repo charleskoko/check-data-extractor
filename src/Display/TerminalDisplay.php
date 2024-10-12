@@ -33,6 +33,17 @@ class TerminalDisplay
         echo "\n  " . self::colorize("2. Reconfiguration of the configuration file", 'green') . "\n";
         echo "     " . self::colorize("check-data-extractor reconfigure config", 'blue') . "\n";
         echo "     Run this command to reconfigure the database connection settings.\n\n";
+
+        // Section 3 : Ajouter une requête SQL
+        echo "\n  " . self::colorize("3. Add a new SQL query", 'green') . "\n";
+        echo "     " . self::colorize("check-data-extractor add-query", 'blue') . "\n";
+        echo "     Use this command to add a new SQL query to the configuration.\n";
+
+        // Section 4 : Afficher les requêtes SQL
+        echo "\n  " . self::colorize("4. Show saved SQL queries", 'green') . "\n";
+        echo "     " . self::colorize("check-data-extractor show-queries", 'blue') . "\n";
+        echo "     Run this command to display all the saved SQL queries from the configuration.\n\n";
+
     }
 
     public static function showError(string $message): void
