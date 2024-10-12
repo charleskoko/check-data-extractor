@@ -43,7 +43,7 @@ class TrackingLogs
 
         $sql = str_replace('{table}', $table, $sqlTemplate);
 
-
+        TerminalDisplay::showFetchingMessage();
         $connection = $this->databaseConnection->getConnection();
         $request = $connection->prepare($sql);
         $request->bindParam(':tracking_api_transaction', $transactionId, PDO::PARAM_STR);
@@ -60,6 +60,8 @@ class TrackingLogs
             TerminalDisplay::showError("Failed to create directory: $folder");
             exit(1);
         }
+
+        TerminalDisplay::showSaveInfoMessage($folder);
 
         while ($row = $request->fetch(PDO::FETCH_ASSOC)) {
             $timestamp = $row['timestamp'];

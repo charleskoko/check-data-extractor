@@ -46,6 +46,18 @@ class TerminalDisplay
 
     }
 
+    public static function showFetchingMessage(): void
+    {
+        $message = "Fetching information";
+        self::DisplayInfoAboutProcess($message);
+    }
+
+    public static function showSaveInfoMessage(string $path): void
+    {
+        $message = "Save data in $path";
+        self::DisplayInfoAboutProcess($message);
+    }
+
     public static function showError(string $message): void
     {
         echo self::colorize($message, 'red') . "\n";
@@ -64,6 +76,26 @@ class TerminalDisplay
     public static function showWarning(string $message): void
     {
         echo self::colorize($message, 'yellow') . "\n";
+    }
+
+    /**
+     * @param string $message
+     * @return void
+     */
+    private static function DisplayInfoAboutProcess(string $message): void
+    {
+        $dots = 3;
+        $iterations = 10;
+
+        for ($i = 0; $i < $iterations; $i++) {
+            self::showSuces("\r" . $message . str_repeat(".", $i % ($dots + 1)));
+
+            flush();
+            usleep(500000); // Pause de 0,5 seconde
+
+        }
+
+        self::showSuces("\r" . $message . str_repeat(".", $dots) . "\n");
     }
 
 }
