@@ -55,12 +55,10 @@ class TrackingLogs
     {
         $folder = getenv("HOME") . "/Downloads/transaction_{$transactionId}";
 
-        if (!is_dir($folder) && !mkdir($folder, 0777, true)) {
+        if (!is_dir($folder) && !mkdir($folder, 0777, true) && !is_dir($folder)) {
             TerminalDisplay::showError("Failed to create directory: $folder");
             exit(1);
         }
-
-        TerminalDisplay::showSaveInfoMessage($folder);
 
         while ($row = $request->fetch(PDO::FETCH_ASSOC)) {
             $timestamp = $row['timestamp'];

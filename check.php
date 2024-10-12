@@ -42,7 +42,7 @@ function executeDatabaseQuery(string $transactionId, string $gds, ConfigManager 
 {
     $configManager->set();
 
-    TerminalDisplay::showFetchingMessage();
+    TerminalDisplay::showSuccess("Fetching information...");
 
     $databaseConnection = new DatabaseConnection(
         $configManager->get('db_host'),
@@ -56,7 +56,7 @@ function executeDatabaseQuery(string $transactionId, string $gds, ConfigManager 
 
     $trackingLogs->doRequestForTrackingData($transactionId, $gds);
 
-    TerminalDisplay::showSuccess("Saved.\n");
+    TerminalDisplay::showSuccess("Folder created and saving in Downloads.\n");
 }
 
 function autoloadManager(): void
