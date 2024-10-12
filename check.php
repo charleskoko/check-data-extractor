@@ -10,41 +10,54 @@ use App\Logger\TrackingLogs;
 
 $configManager = new ConfigManager();
 
-if ($argc === 2 && $argv[1] === 'add-query') {
-    $configManager->addQuery();
-    exit(0);
+handleCliArguments($argc, $argv, $configManager);
+
+function handleCliArguments(int $argc, array $argv, ConfigManager $configManager): void
+{
+    if ($argc === 2 && $argv[1] === 'add-query') {
+        $configManager->addQuery();
+        exit(0);
+    }
+
+    if ($argc === 2 && $argv[1] === 'show-queries') {
+        $configManager->showQueries();
+        exit(0);
+    }
+
+    if ($argc === 3 && $argv[1] === 'reconfigure' && $argv[2] === 'config') {
+        $configManager->reconfigure();
+        exit(0);
+    }
+
+    if ($argc !== 3) {
+        TerminalDisplay::showUsageInstructions();
+        exit(0);
+    }
+
+    executeDatabaseQuery($argv[1], $argv[2], $configManager);
+
 }
 
-if ($argc === 2 && $argv[1] === 'show-queries') {
-    $configManager->showQueries();
-    exit(0);
+function executeDatabaseQuery(string $transactionId, string $gds, ConfigManager $configManager): void
+{
+    $configManager->set();
+
+    TerminalDisplay::showFetchingMessage();
+
+    $databaseConnection = new DatabaseConnection(
+        $configManager->get('db_host'),
+        $configManager->get('db_port'),
+        $configManager->get('db_username'),
+        $configManager->get('db_pass'),
+        $configManager->get('db_name')
+    );
+
+    $trackingLogs = new TrackingLogs($databaseConnection, $configManager->getConfig());
+
+    $trackingLogs->doRequestForTrackingData($transactionId, $gds);
+
+    TerminalDisplay::showSuccess("Saved.\n");
 }
-
-if ($argc === 3 && $argv[1] === 'reconfigure' && $argv[2] === 'config') {
-    $configManager->reconfigure();
-    exit(0);
-}
-
-if ($argc !== 3) {
-    TerminalDisplay::showUsageInstructions();
-    exit(0);
-}
-
-$configManager->set();
-
-$databaseConnection = new DatabaseConnection(
-    $configManager->get('db_host'),
-    $configManager->get('db_port'),
-    $configManager->get('db_username'),
-    $configManager->get('db_pass'),
-    $configManager->get('db_name')
-);
-
-$trackingLogs = new TrackingLogs($databaseConnection, $configManager->getConfig());
-
-$trackingLogs->doRequestForTrackingData($argv[1], $argv[2]);
-
-TerminalDisplay::showSuccess("Saved.\n");
 
 function autoloadManager(): void
 {

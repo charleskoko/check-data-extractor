@@ -43,7 +43,6 @@ class TrackingLogs
 
         $sql = str_replace('{table}', $table, $sqlTemplate);
 
-        TerminalDisplay::showFetchingMessage();
         $connection = $this->databaseConnection->getConnection();
         $request = $connection->prepare($sql);
         $request->bindParam(':tracking_api_transaction', $transactionId, PDO::PARAM_STR);
