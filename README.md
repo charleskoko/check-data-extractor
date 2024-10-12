@@ -19,3 +19,14 @@ To install **Check Data Extractor** using Homebrew, follow the steps below:
 ```bash
 brew tap charleskoko/tools
 brew install check-data-extractor
+```
+
+## Update
+
+To update Check Data Extractor to the latest version, run the following commands:
+
+```bash
+brew cleanup
+brew update-reset
+brew upgrade check-data-extractor
+```
