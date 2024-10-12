@@ -44,7 +44,7 @@ $trackingLogs = new TrackingLogs($databaseConnection, $configManager->getConfig(
 
 $trackingLogs->doRequestForTrackingData($argv[1], $argv[2]);
 
-TerminalDisplay::showSuces("Check the downloads folder.\n");
+TerminalDisplay::showSuccess("Saved.\n");
 
 function autoloadManager(): void
 {

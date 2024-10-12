@@ -22,7 +22,7 @@ class ConfigManager
                 if (!$isDeleted) {
                     TerminalDisplay::showWarning("Please manually delete the file in {$this->config_file} before continuing.");
                 }
-                TerminalDisplay::showSuces("The file was successfully deleted.");
+                TerminalDisplay::showSuccess("The file was successfully deleted.");
                 exit(1);
             }
             $this->config = $config;
@@ -102,18 +102,18 @@ class ConfigManager
 
         $this->save();
 
-        TerminalDisplay::showSuces("Query '$queryName' added to the configuration successfully.");
+        TerminalDisplay::showSuccess("Query '$queryName' added to the configuration successfully.");
     }
 
     private function save(bool $isFirstTime = false): void
     {
         if ($isFirstTime) {
             file_put_contents($this->config_file, "<?php\nreturn " . var_export($this->config, true) . ";\n");
-            TerminalDisplay::showSuces("Configuration created and saved in {$this->config_file}");
+            TerminalDisplay::showSuccess("Configuration created and saved in {$this->config_file}");
         }
         if (!$isFirstTime) {
             file_put_contents($this->config_file, "<?php\nreturn " . var_export($this->config, true) . ";\n");
-            TerminalDisplay::showSuces("Configuration updated and saved in {$this->config_file}");
+            TerminalDisplay::showSuccess("Configuration updated and saved in {$this->config_file}");
         }
     }
 

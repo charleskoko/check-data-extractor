@@ -68,7 +68,7 @@ class TerminalDisplay
         echo self::colorize($message, 'blue') . "\n";
     }
 
-    public static function showSuces(string $message): void
+    public static function showSuccess(string $message): void
     {
         echo self::colorize($message, 'green') . "\n";
     }
@@ -88,14 +88,14 @@ class TerminalDisplay
         $iterations = 10;
 
         for ($i = 0; $i < $iterations; $i++) {
-            self::showSuces("\r" . $message . str_repeat(".", $i % ($dots + 1)));
+            self::showSuccess("\r" . $message . str_repeat(".", $i % ($dots + 1)));
 
             flush();
             usleep(500000); // Pause de 0,5 seconde
 
         }
 
-        self::showSuces("\r" . $message . str_repeat(".", $dots) . "\n");
+        self::showSuccess("\r" . $message . str_repeat(".", $dots) . "\n");
     }
 
 }
