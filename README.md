@@ -1,7 +1,5 @@
 # Check Data Extractor
 
-![Check Data Extractor Logo](https://via.placeholder.com/400x100?text=Check+Data+Extractor+Logo)
-
 ## Overview
 
 **Check Data Extractor** is a powerful command-line tool designed to retrieve and process transaction information from various databases. It supports multiple Global Distribution Systems (GDS) and provides a flexible way to manage and analyze transaction data. With additional features like adding SQL queries dynamically and reconfiguring database settings, this tool simplifies the extraction and management of critical information.
